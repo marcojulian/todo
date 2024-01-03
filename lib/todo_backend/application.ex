@@ -4,14 +4,11 @@ defmodule TodoBackend.Application do
   @moduledoc false
 
   use Application
-  use Commanded.Application, otp_app: :todo_backend
-
-  router(TodoBackend.Router)
 
   @impl true
   def start(_type, _args) do
     children = [
-      TodoBackend.EventStore,
+      TodoBackend.App,
       TodoBackendWeb.Telemetry,
       TodoBackend.Repo,
       {DNSCluster, query: Application.get_env(:todo_backend, :dns_cluster_query) || :ignore},
