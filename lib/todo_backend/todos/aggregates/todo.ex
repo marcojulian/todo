@@ -9,6 +9,8 @@ defmodule TodoBackend.Todos.Aggregates.Todo do
   alias TodoBackend.Todos.Aggregates.Todo
   alias TodoBackend.Todos.Events.TodoCreated
   alias TodoBackend.Todos.Commands.CreateTodo
+  alias TodoBackend.Todos.Events.TodoDeleted
+  alias TodoBackend.Todos.Commands.DeleteTodo
 
   def execute(%Todo{uuid: nil}, %CreateTodo{} = create) do
     %TodoCreated{
@@ -19,6 +21,10 @@ defmodule TodoBackend.Todos.Aggregates.Todo do
     }
   end
 
+  def execute(%Todo{uuid: uuid}, %DeleteTodo{uuid: uuid}) do
+    %TodoDeleted{uuid: uuid}
+  end
+
   def apply(%Todo{} = todo, %TodoCreated{} = created) do
       %Todo{
           todo
@@ -27,5 +33,9 @@ defmodule TodoBackend.Todos.Aggregates.Todo do
           completed: created.completed,
           order: created.order
       }
+  end
+
+  def apply(%Todo{uuid: uuid}, %TodoDeleted{uuid: uuid}) do
+    nil
   end
 end
