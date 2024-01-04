@@ -9,6 +9,7 @@ defmodule TodoBackend.Application do
   def start(_type, _args) do
     children = [
       TodoBackend.App,
+      TodoBackend.Todos.Supervisor,
       TodoBackendWeb.Telemetry,
       TodoBackend.Repo,
       {DNSCluster, query: Application.get_env(:todo_backend, :dns_cluster_query) || :ignore},
