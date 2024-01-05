@@ -114,17 +114,4 @@ defmodule TodoBackend.Todos do
       reply -> reply
     end
   end
-
-  @doc """
-  Deletes all todos.
-
-  ## Examples
-
-      iex> delete_all_todos()
-      {deleted_count, nil}
-
-  """
-  def delete_all_todos() do
-    Repo.delete_all(Todo)
-  end
 end

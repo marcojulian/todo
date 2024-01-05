@@ -1,6 +1,6 @@
 defmodule TodoBackend.Todos.Projectors.Todo do
   use Commanded.Projections.Ecto,
-    name: "Todos.Projectors.Todo",
+    name: "TodoBackend.Todos.Projectors.Todo",
     application: TodoBackend.App,
     consistency: :strong
 
