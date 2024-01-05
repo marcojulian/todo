@@ -43,7 +43,8 @@ defmodule TodoBackend.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:commanded, "~> 1.4"},
       {:commanded_eventstore_adapter, "~> 1.4"},
-      {:commanded_ecto_projections, "~> 1.3"}
+      {:commanded_ecto_projections, "~> 1.3"},
+      {:exconstructor, "~> 1.2"}
     ]
   end
 
