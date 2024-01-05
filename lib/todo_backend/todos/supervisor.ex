@@ -8,7 +8,7 @@ defmodule TodoBackend.Todos.Supervisor do
   def init(_arg) do
     Supervisor.init(
       [
-        Todos.Projectors.Todo
+        TodoBackend.Todos.Projectors.Todo
       ],
       strategy: :one_for_one
     )

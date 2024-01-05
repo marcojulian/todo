@@ -4,9 +4,13 @@ defmodule TodoBackend.Todos do
   """
 
   import Ecto.Query, warn: false
+  alias TodoBackend.App
   alias TodoBackend.Repo
+  alias TodoBackend.Todos.Commands.CreateTodo
+  alias TodoBackend.Todos.Commands.DeleteTodo
+  alias TodoBackend.Todos.Commands.UpdateTodo
 
-  alias TodoBackend.Todos.Todo
+  alias TodoBackend.Todos.Projections.Todo
 
   @doc """
   Returns the list of todos.
@@ -28,14 +32,14 @@ defmodule TodoBackend.Todos do
 
   ## Examples
 
-      iex> get_todo!(123)
+      iex> get_todo!("51004ff5-5a73-4681-87bb-1b1ffbf03fe0")
       %Todo{}
 
-      iex> get_todo!(456)
+      iex> get_todo!("00000000-0000-0000-0000-000000000000")
       ** (Ecto.NoResultsError)
 
   """
-  def get_todo!(id), do: Repo.get!(Todo, id)
+  def get_todo!(uuid), do: Repo.get_by!(Todo, uuid: uuid)
 
   @doc """
   Creates a todo.
@@ -50,9 +54,18 @@ defmodule TodoBackend.Todos do
 
   """
   def create_todo(attrs \\ %{}) do
-    %Todo{}
-    |> Todo.changeset(attrs)
-    |> Repo.insert()
+    uuid = Ecto.UUID.generate()
+
+    command =
+      attrs
+      |> CreateTodo.new()
+      |> CreateTodo.assign_uuid(uuid)
+
+    with :ok <- App.dispatch(command, consistency: :strong) do
+      {:ok, get_todo!(uuid)}
+    else
+      reply -> reply
+    end
   end
 
   @doc """
@@ -67,10 +80,17 @@ defmodule TodoBackend.Todos do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_todo(%Todo{} = todo, attrs) do
-    todo
-    |> Todo.changeset(attrs)
-    |> Repo.update()
+  def update_todo(%Todo{uuid: uuid}, attrs) do
+    command =
+      attrs
+      |> UpdateTodo.new()
+      |> UpdateTodo.assign_uuid(uuid)
+
+    with :ok <- App.dispatch(command, consistency: :strong) do
+      {:ok, get_todo!(uuid)}
+    else
+      reply -> reply
+    end
   end
 
   @doc """
@@ -85,20 +105,26 @@ defmodule TodoBackend.Todos do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_todo(%Todo{} = todo) do
-    Repo.delete(todo)
+  def delete_todo(%Todo{uuid: uuid}) do
+    command = DeleteTodo.new(%{uuid: uuid})
+
+    with :ok <- App.dispatch(command) do
+      :ok
+    else
+      reply -> reply
+    end
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking todo changes.
+  Deletes all todos.
 
   ## Examples
 
-      iex> change_todo(todo)
-      %Ecto.Changeset{data: %Todo{}}
+      iex> delete_all_todos()
+      {deleted_count, nil}
 
   """
-  def change_todo(%Todo{} = todo, attrs \\ %{}) do
-    Todo.changeset(todo, attrs)
+  def delete_all_todos() do
+    Repo.delete_all(Todo)
   end
 end
